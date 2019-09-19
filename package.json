@@ -1,0 +1,39 @@
+{
+	"name": "uspto-query-parser",
+	"version": "0.1.0",
+	"description": "A BNF tool to parse a USPTO query into a structured object.",
+	"main": "lib/index.js",
+	"repository": "git@github.com:prior-art-archive/uspto-query-parser.git",
+	"author": "Bad Idea Factory <services@biffud.com>",
+	"license": "MIT",
+	"scripts": {
+		"build": "npm run clean && npm run build:commonjs && npm run build:umd && npm run build:umd:min",
+		"build:commonjs": "babel src --out-dir lib",
+		"build:umd": "cross-env FILE_NAME=uspto-query-parser webpack",
+		"build:umd:min": "cross-env NODE_ENV=production npm run build:umd",
+		"clean": "rimraf lib dist",
+		"coverage": "yarn test --coverage",
+		"lint": "eslint src --ext .js,.jsx",
+		"test": "jest",
+		"test:ci": "jest",
+		"posttest": "yarn lint",
+  	"prepublishOnly": "yarn test && yarn build"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.6.0",
+		"@babel/core": "^7.6.0",
+		"@babel/preset-env": "^7.6.0",
+		"babel-eslint": "^10.0.3",
+		"babel-jest": "^24.9.0",
+		"cross-env": "^6.0.0",
+		"eslint": "^6.4.0",
+		"eslint-config-airbnb": "^18.0.1",
+		"eslint-plugin-import": "^2.18.2",
+		"eslint-plugin-jsx-a11y": "^6.2.3",
+		"eslint-plugin-react": "^7.14.3",
+		"jest": "^24.9.0",
+		"rimraf": "^3.0.0",
+		"webpack": "^4.40.2",
+		"webpack-cli": "^3.3.9"
+	}
+}

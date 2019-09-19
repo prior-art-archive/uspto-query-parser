@@ -60,6 +60,5 @@ typings/
 # next.js build output
 .next
 
-# compiled folders
-lib
-dist
+# We don't want to publish the source to npm, just compiled builds
+src
