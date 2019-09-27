@@ -7,11 +7,11 @@
 	"author": "Bad Idea Factory <services@biffud.com>",
 	"license": "MIT",
 	"scripts": {
-		"build": "npm run clean && build:nearley && npm run build:commonjs && npm run build:umd && npm run build:umd:min",
+		"build": "yarn clean && yarn build:nearley && yarn build:commonjs && yarn build:umd && yarn build:umd:min",
 		"build:commonjs": "babel src --out-dir lib",
 		"build:nearley": "nearleyc grammar/uspto.ne -o grammar/uspto.js",
 		"build:umd": "cross-env FILE_NAME=uspto-query-parser webpack",
-		"build:umd:min": "cross-env NODE_ENV=production npm run build:umd",
+		"build:umd:min": "cross-env NODE_ENV=production yarn build:umd",
 		"clean": "rimraf lib dist",
 		"coverage": "yarn test --coverage",
 		"lint": "eslint src --ext .js,.jsx",
