@@ -38,6 +38,7 @@
 		"webpack-cli": "^3.3.9"
 	},
 	"dependencies": {
+		"moo": "^0.5.0",
 		"nearley": "^2.19.0"
 	}
 }
