@@ -66,4 +66,13 @@ describe('USPTO Grammar', () => {
 		testValidInput('(fresh AND (banana OR apple)) (pie OR juice)')
 		testValidInput('(fresh AND (banana OR apple)) (pie OR juice OR "frozen smoothie")')
 	})
+
+	it('should parse proximity clauses', () => {
+		testValidInput('banana NEAR tree')
+		testValidInput('banana ADJ tree')
+		testValidInput('banana WITH tree')
+		testValidInput('banana SAME tree')
+		testValidInput('"banana tree" SAME island')
+		testValidInput('(banana SAME tree) AND ("jumping" ADJ "jacks")')
+	})
 })
