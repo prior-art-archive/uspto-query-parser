@@ -6,10 +6,15 @@
 		comment: /#.*/,
 		literal: /".*?"/, // Exact phrases can be included in double quotes
 		whitespace: { match: /\s+/, lineBreaks: true },
-		unpairedQuote: /"/, // To be treated as whitespace
+		unpairedQuote: '"', // To be treated as whitespace
+		orOperator: '|', // An alternative to "OR"
+		andOperator: '&', // An alternative to "AND"
 		term: [
 			{
-				match: /[^\s"#]+/,
+				match: /[^\s"#\|&]+/,
+				type: moo.keywords({
+					booleanOperator: ['OR', 'AND', 'NOT', 'XOR'],
+				}),
 			},
 		],
 	})
@@ -21,6 +26,10 @@ query -> _ clause comment:?
 
 clause ->
 	  terms
+	| (terms conjunction __ clause)
+
+conjunction ->
+	booleanOperator
 
 terms -> (
 	  atomicTerms _
@@ -34,6 +43,18 @@ atomicTerms ->
 ## Comments ##
 # Anything following ‘#’ will be completely removed from the search text.
 comment -> %comment
+
+#######################
+## Boolean Operators ##
+# These operators allow for combined clauses.
+# - OR (or |)
+# - AND (or &)
+# - NOT
+# - XOR
+booleanOperator ->
+	  %booleanOperator
+	| %orOperator
+	| %andOperator
 
 ################
 ## Whitespace ##
