@@ -9,9 +9,11 @@
 		unpairedQuote: '"', // To be treated as whitespace
 		orOperator: '|', // An alternative to "OR"
 		andOperator: '&', // An alternative to "AND"
+		leftParen: '(',
+		rightParen: ')',
 		term: [
 			{
-				match: /[^\s"#\|&]+/,
+				match: /[^\s"#\|&()]+/,
 				type: moo.keywords({
 					booleanOperator: ['OR', 'AND', 'NOT', 'XOR'],
 				}),
@@ -33,6 +35,7 @@ conjunction ->
 
 terms -> (
 	  atomicTerms _
+	| closedClause _
 ):+
 
 atomicTerms ->
@@ -43,6 +46,12 @@ atomicTerms ->
 ## Comments ##
 # Anything following ‘#’ will be completely removed from the search text.
 comment -> %comment
+
+####################
+## Closed Clauses ##
+# clauses contained in parentheses
+# TODO: This parser assumes balanaced parentheses
+closedClause -> %leftParen _ clause %rightParen
 
 #######################
 ## Boolean Operators ##

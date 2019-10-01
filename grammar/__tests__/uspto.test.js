@@ -57,4 +57,13 @@ describe('USPTO Grammar', () => {
 		testValidInput('banana | pie & cookies')
 		testValidInput('banana | pie AND cookies')
 	})
+
+	it('should parse parenthetical clauses', () => {
+		testValidInput('banana (pie) # is delicious')
+		testValidInput('frozen (banana OR apple) pie')
+		testValidInput('(banana OR apple) pie')
+		testValidInput('(banana OR apple) (pie OR juice)')
+		testValidInput('(fresh AND (banana OR apple)) (pie OR juice)')
+		testValidInput('(fresh AND (banana OR apple)) (pie OR juice OR "frozen smoothie")')
+	})
 })
