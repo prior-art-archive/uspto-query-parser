@@ -33,4 +33,11 @@ describe('USPTO Grammar', () => {
 		testValidInput('banana " pie')
 		testValidInput('banana " pie and cake')
 	})
+
+	it('should parse comments', () => {
+		testValidInput('banana "pie # is delicious')
+		testValidInput('banana pie # is "very good"')
+		testValidInput('banana pie#is not real')
+		testValidInput('banana pie#please')
+	})
 })
