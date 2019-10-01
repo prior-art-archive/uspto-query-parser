@@ -49,13 +49,13 @@ conjunction ->
 	booleanOperator
 
 terms -> (
-	  atomicTerms _
+	  atomicTerm _
 	| closedClause _
 	| proximityClause _
 	| fieldClause _
 ):+
 
-atomicTerms ->
+atomicTerm ->
 	  %term
 	| %literal
 	| %number
@@ -75,7 +75,7 @@ closedClause -> %leftParen _ clause %rightParen
 ## Proximity Clauses ##
 # clauses that identify pairs of nearby terms
 proximityClause ->
-	  atomicTerms _ proximityOperator __ atomicTerms
+	  atomicTerm _ proximityOperator __ atomicTerm
 
 ###################
 ## Field Clauses ##
@@ -86,8 +86,8 @@ fieldClause ->
 	  extension
 	| flag
 
-extension -> atomicTerms %extensionOperator %field
-flag -> %field %fieldOperator atomicTerms
+extension -> atomicTerm %extensionOperator %field
+flag -> %field %fieldOperator atomicTerm
 
 #######################
 ## Boolean Operators ##
