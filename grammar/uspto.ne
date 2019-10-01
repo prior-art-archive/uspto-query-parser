@@ -1,4 +1,32 @@
-# This is just an example to kick things off
-@builtin "whitespace.ne" # `_` means arbitrary amount of whitespace
+# We use a lexer to split the string into tokens
+@{%
+	const moo = require('moo')
 
-sentence -> "Hello" _ "World"
+	const lexer = moo.compile({
+		whitespace: { match: /\s+/, lineBreaks: true },
+		term: [
+			{
+				match: /[^\s]+/,
+			},
+		],
+	})
+%}
+
+@lexer lexer
+
+query -> _ clause
+
+clause ->
+	  terms
+
+terms -> (
+	  atomicTerms _
+):+
+
+atomicTerms ->
+	  %term
+
+################
+## Whitespace ##
+_ -> (%whitespace:+):?
+__ -> %whitespace

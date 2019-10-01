@@ -7,13 +7,17 @@ const getResult = str => getParser()
 	.feed(str)
 	.results
 
+const testValidInput = str => {
+	expect(() => getResult(str))
+		.not.toThrow()
+	expect(getResult(str))
+		.toHaveLength(1)
+}
+
 describe('USPTO Grammar', () => {
-	it('Hello world should pass', () => {
-		expect(() => getResult("Hello World"))
-			.not.toThrow()
-	})
-	it('Goodbye world should fail', () => {
-		expect(() => getResult("Goodbye World"))
-			.toThrow()
+	it('Valid strings should pass', () => {
+		testValidInput('banana')
+		testValidInput(' banana')
+		testValidInput('banana pie')
 	})
 })
