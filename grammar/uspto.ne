@@ -6,6 +6,7 @@
 		comment: /#.*/,
 		literal: /".*?"/, // Exact phrases can be included in double quotes
 		whitespace: { match: /\s+/, lineBreaks: true },
+		number: /\d+/,
 		unpairedQuote: '"', // To be treated as whitespace
 		orOperator: '|', // An alternative to "OR"
 		andOperator: '&', // An alternative to "AND"
@@ -13,7 +14,7 @@
 		rightParen: ')',
 		term: [
 			{
-				match: /[^\s"#\|&()]+/,
+				match: /[^\s"#\|&()\d]+/,
 				type: moo.keywords({
 					booleanOperator: ['OR', 'AND', 'NOT', 'XOR'],
 					proximityOperator: ['ADJ','NEAR','WITH','SAME'],
@@ -43,6 +44,7 @@ terms -> (
 atomicTerms ->
 	  %term
 	| %literal
+	| %number
 
 ##############
 ## Comments ##
@@ -59,7 +61,7 @@ closedClause -> %leftParen _ clause %rightParen
 ## Proximity Clauses ##
 # clauses that identify pairs of nearby terms
 proximityClause ->
-		atomicTerms _ proximityOperator __ atomicTerms
+	  atomicTerms _ proximityOperator __ atomicTerms
 
 #######################
 ## Boolean Operators ##
@@ -82,7 +84,15 @@ booleanOperator ->
 # - NEAR: next to Terms in any order in the same sentence.
 # - WITH: TermA in the same sentence with TermB.
 # - SAME: TermA in the same paragraph with Terms
-proximityOperator -> %proximityOperator
+#
+# You can also modify distances for some proximity clauses
+# - ADJn: TermA within n terms of Bin the order specified in the same sentence.
+# - NEARn: TermA within n terms of B in any order in the same sentence.
+# - SAMEn: TermA within n paragraphs of TermB
+# where "n" is a number
+proximityOperator ->
+	  %proximityOperator
+	| %proximityOperator %number
 
 ################
 ## Whitespace ##

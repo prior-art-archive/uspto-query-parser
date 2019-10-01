@@ -75,4 +75,17 @@ describe('USPTO Grammar', () => {
 		testValidInput('"banana tree" SAME island')
 		testValidInput('(banana SAME tree) AND ("jumping" ADJ "jacks")')
 	})
+
+	it('should parse clauses with numbers', () => {
+		testValidInput('15 bananas')
+		testValidInput('"15 different" bananas')
+		testValidInput('1 AND 2')
+	})
+
+	it('should parse adjusted proximity clauses', () => {
+		testValidInput('banana ADJ15 tree')
+		testValidInput('pineapple SAME22 explosion')
+		testValidInput('1 NEAR2 3')
+		testValidInput('"very hungry" NEAR30 "ate an entire cow"')
+	})
 })
