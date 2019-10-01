@@ -3,10 +3,12 @@
 	const moo = require('moo')
 
 	const lexer = moo.compile({
+		literal: /".*?"/, // Exact phrases can be included in double quotes
 		whitespace: { match: /\s+/, lineBreaks: true },
+		unpairedQuote: /"/, // To be treated as whitespace
 		term: [
 			{
-				match: /[^\s]+/,
+				match: /[^\s"]+/,
 			},
 		],
 	})
@@ -25,8 +27,14 @@ terms -> (
 
 atomicTerms ->
 	  %term
+	| %literal
 
 ################
 ## Whitespace ##
-_ -> (%whitespace:+):?
-__ -> %whitespace
+_ -> (whitespace:+):?
+
+__ -> whitespace
+
+whitespace ->
+	  %whitespace
+	| %unpairedQuote

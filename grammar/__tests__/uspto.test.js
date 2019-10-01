@@ -15,9 +15,22 @@ const testValidInput = str => {
 }
 
 describe('USPTO Grammar', () => {
-	it('Valid strings should pass', () => {
+	it('should parse basic tokens', () => {
 		testValidInput('banana')
 		testValidInput(' banana')
 		testValidInput('banana pie')
+	})
+
+	it('should parse literals', () => {
+		testValidInput('banana "pie"')
+		testValidInput('banana pie and "ice cream"')
+		testValidInput('"banana" "pie" and "ice cream"')
+		testValidInput('"banana" "pie" and "ice cream" sandwiches')
+	})
+
+	it('should parse unbalanced quotes', () => {
+		testValidInput('banana "pie')
+		testValidInput('banana " pie')
+		testValidInput('banana " pie and cake')
 	})
 })
