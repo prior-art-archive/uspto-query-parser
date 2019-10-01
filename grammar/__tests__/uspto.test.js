@@ -82,10 +82,10 @@ describe('USPTO Grammar', () => {
 		testValidInput('1 AND 2')
 	})
 
-	it('should parse adjusted proximity clauses', () => {
-		testValidInput('banana ADJ15 tree')
-		testValidInput('pineapple SAME22 explosion')
-		testValidInput('1 NEAR2 3')
-		testValidInput('"very hungry" NEAR30 "ate an entire cow"')
+	it('should parse field clauses', () => {
+		testValidInput('banana ADJ15 tree monkey.ATT')
+		testValidInput('"I cannot find my pants".SRC')
+		testValidInput('PRAN/somebody')
+		testValidInput('ART/"ONCE TOLD ME THE WORLD" # WAS GONNA ROLL ME')
 	})
 })

@@ -12,12 +12,25 @@
 		andOperator: '&', // An alternative to "AND"
 		leftParen: '(',
 		rightParen: ')',
+		extensionOperator: '.',
+		fieldOperator: '/',
 		term: [
 			{
-				match: /[^\s"#\|&()\d]+/,
+				match: /[^\s"#\|&()\d\.\/]+/,
 				type: moo.keywords({
 					booleanOperator: ['OR', 'AND', 'NOT', 'XOR'],
 					proximityOperator: ['ADJ','NEAR','WITH','SAME'],
+					field: [
+						'ATT', 'AT', 'KD', 'PARN', 'SRC', 'PDID', 'PD', 'PRAN', 'PRN', 'PRCO', 'PRC', 'PRAD',
+						'PRD', 'PRAY', 'PRY', 'RLAN', 'RLPN', 'ART', 'UNIT', 'ASCI', 'ASCO', 'ASCC', 'ASTX', 'ASST',
+						'ASZP', 'CCLS', 'COR', 'CCOR', 'CXR', 'CCXR', 'CLAS', 'ICLS', 'IOR', 'CIOR', 'IXR', 'CIXR',
+						'IPCC', 'IPCR', 'IPC', 'CICL', 'DD', 'FS', 'BI', 'XA', 'XP', 'GI', 'INCI', 'INCO',
+						'INCC', 'INTX', 'INST', 'INSA', 'INZP', 'PN', 'DID', 'ISD', 'PY', 'ISY', 'AB', 'BSUM',
+						'CLM', 'DETD', 'DRWD', 'TI', 'PTAN', 'PTAD', 'PT3D', 'PTPN', 'PTPD', 'FRPN', 'FRCO', 'FIPC',
+						'FRGP', 'FRCL', 'OREF', 'UREF', 'URGP', 'URCL', 'READ', 'REFD', 'REAN', 'REPD', 'REPN', 'R47X',
+						'CPC', 'URPN', 'INV', 'AD', 'FD', 'AY', 'FY', 'PPPD', 'ASGP', 'AS', 'INGP', 'IN',
+						'APNR', 'APN', 'APP', 'AP',
+					],
 				}),
 			},
 		],
@@ -39,6 +52,7 @@ terms -> (
 	  atomicTerms _
 	| closedClause _
 	| proximityClause _
+	| fieldClause _
 ):+
 
 atomicTerms ->
@@ -62,6 +76,18 @@ closedClause -> %leftParen _ clause %rightParen
 # clauses that identify pairs of nearby terms
 proximityClause ->
 	  atomicTerms _ proximityOperator __ atomicTerms
+
+###################
+## Field Clauses ##
+# Users can search via specific field, either invoking
+# - extension: `*.FIELD`
+# - field flag: `FIELD/*`
+fieldClause ->
+	  extension
+	| flag
+
+extension -> atomicTerms %extensionOperator %field
+flag -> %field %fieldOperator atomicTerms
 
 #######################
 ## Boolean Operators ##
