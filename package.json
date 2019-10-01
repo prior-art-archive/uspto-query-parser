@@ -15,7 +15,7 @@
 		"clean": "rimraf lib dist",
 		"coverage": "yarn test --coverage",
 		"lint": "eslint src --ext .js,.jsx",
-		"test": "jest",
+		"test": "yarn build:nearley && jest",
 		"test:ci": "jest",
 		"posttest": "yarn lint",
 		"prepublishOnly": "yarn test && yarn build"
