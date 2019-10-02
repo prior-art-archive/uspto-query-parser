@@ -12,13 +12,14 @@
 		andOperator: '&', // An alternative to "AND"
 		fuzzyOperator: '~',
 		boostOperator: '^',
+		wildcard: /\$\d*/,
 		leftParen: '(',
 		rightParen: ')',
 		extensionOperator: '.',
 		fieldOperator: '/',
 		term: [
 			{
-				match: /[^\s"#\|&()\d\.\/~\^]+/,
+				match: /[^\s"#\|&()\d\.\/~\^\$]+/,
 				type: moo.keywords({
 					booleanOperator: ['OR', 'AND', 'NOT', 'XOR'],
 					proximityOperator: ['ADJ','NEAR','WITH','SAME'],
@@ -63,6 +64,7 @@ atomicTerm ->
 	  %term
 	| %literal
 	| %number
+	| wildcardClause
 
 ##############
 ## Comments ##
@@ -105,6 +107,12 @@ fuzzyClause -> atomicTerm %fuzzyOperator %number
 # ‘^’ if used in search text will always have a number following ‘^’
 # and this number will be used as ‘BOOST’ value for the string preceding ‘^’.
 boostClause -> atomicTerm %boostOperator %number
+
+##################
+## Wildcard Clause ##
+# ‘$‘ will be interpreted as any number of characters
+# ‘$n’ will be interpreted as n number of characters
+wildcardClause -> atomicTerm %wildcard
 
 #######################
 ## Boolean Operators ##

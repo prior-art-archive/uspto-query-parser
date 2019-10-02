@@ -100,4 +100,15 @@ describe('USPTO Grammar', () => {
 		testValidInput('"chocolate pie"^100')
 		testValidInput('"chocolate pie"^100 AND walnuts')
 	})
+
+	it('should allow for wildcard operators', () => {
+		testValidInput('banana$')
+		testValidInput('banana$15')
+		testValidInput('"apple dumplings"$10')
+		testValidInput('"apple dumplings"$10 AND parrots')
+		testValidInput('banana$15 ADJ muffins$5')
+		testValidInput('banana$15 ADJ5 muffins$5')
+		testValidInput('banana$15 ADJ5 muffins$5 #why not test comments again')
+		testValidInput('banana$15 15')
+	})
 })
