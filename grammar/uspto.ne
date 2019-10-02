@@ -13,6 +13,7 @@
 		fuzzyOperator: '~',
 		boostOperator: '^',
 		wildcard: /\$\d*/,
+		lineNumber: /L\d*/,
 		leftParen: '(',
 		rightParen: ')',
 		extensionOperator: '.',
@@ -58,6 +59,7 @@ terms -> (
 	| fieldClause _
 	| fuzzyClause _
 	| boostClause _
+	| lineClause _
 ):+
 
 atomicTerm ->
@@ -113,6 +115,11 @@ boostClause -> atomicTerm %boostOperator %number
 # ‘$‘ will be interpreted as any number of characters
 # ‘$n’ will be interpreted as n number of characters
 wildcardClause -> atomicTerm %wildcard
+
+#################
+## Line Clause ##
+# Line numbers used in search text will be of the form L followed by the line number
+lineClause -> %lineNumber
 
 #######################
 ## Boolean Operators ##

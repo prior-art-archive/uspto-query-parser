@@ -111,4 +111,11 @@ describe('USPTO Grammar', () => {
 		testValidInput('banana$15 ADJ5 muffins$5 #why not test comments again')
 		testValidInput('banana$15 15')
 	})
+
+	it('should allow for line number clauses', () => {
+		testValidInput('L15')
+		testValidInput('banana L15')
+		testValidInput('L15 OR "pants"')
+		testValidInput('L15 OR L16')
+	})
 })
