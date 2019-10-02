@@ -94,4 +94,10 @@ describe('USPTO Grammar', () => {
 		testValidInput('"banana soup"~7')
 		testValidInput('"banana soup"~7 AND "pumpkin pie"~3 AND ice cream')
 	})
+
+	it('should allow boost operators', () => {
+		testValidInput('banana^4')
+		testValidInput('"chocolate pie"^100')
+		testValidInput('"chocolate pie"^100 AND walnuts')
+	})
 })

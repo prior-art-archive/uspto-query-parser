@@ -11,13 +11,14 @@
 		orOperator: '|', // An alternative to "OR"
 		andOperator: '&', // An alternative to "AND"
 		fuzzyOperator: '~',
+		boostOperator: '^',
 		leftParen: '(',
 		rightParen: ')',
 		extensionOperator: '.',
 		fieldOperator: '/',
 		term: [
 			{
-				match: /[^\s"#\|&()\d\.\/~]+/,
+				match: /[^\s"#\|&()\d\.\/~\^]+/,
 				type: moo.keywords({
 					booleanOperator: ['OR', 'AND', 'NOT', 'XOR'],
 					proximityOperator: ['ADJ','NEAR','WITH','SAME'],
@@ -55,6 +56,7 @@ terms -> (
 	| proximityClause _
 	| fieldClause _
 	| fuzzyClause _
+	| boostClause _
 ):+
 
 atomicTerm ->
@@ -97,6 +99,12 @@ flag -> %field %fieldOperator atomicTerm
 # and  will be interpreted as ‘FUZZY’ of the preceding string with a
 # similarity of the following number.
 fuzzyClause -> atomicTerm %fuzzyOperator %number
+
+##################
+## Boost Clause ##
+# ‘^’ if used in search text will always have a number following ‘^’
+# and this number will be used as ‘BOOST’ value for the string preceding ‘^’.
+boostClause -> atomicTerm %boostOperator %number
 
 #######################
 ## Boolean Operators ##
