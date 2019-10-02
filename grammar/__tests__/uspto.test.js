@@ -88,4 +88,10 @@ describe('USPTO Grammar', () => {
 		testValidInput('PRAN/somebody')
 		testValidInput('ART/"ONCE TOLD ME THE WORLD" # WAS GONNA ROLL ME')
 	})
+
+	it('should allow fuzzy operators', () => {
+		testValidInput('banana~4')
+		testValidInput('"banana soup"~7')
+		testValidInput('"banana soup"~7 AND "pumpkin pie"~3 AND ice cream')
+	})
 })

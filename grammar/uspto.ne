@@ -10,13 +10,14 @@
 		unpairedQuote: '"', // To be treated as whitespace
 		orOperator: '|', // An alternative to "OR"
 		andOperator: '&', // An alternative to "AND"
+		fuzzyOperator: '~',
 		leftParen: '(',
 		rightParen: ')',
 		extensionOperator: '.',
 		fieldOperator: '/',
 		term: [
 			{
-				match: /[^\s"#\|&()\d\.\/]+/,
+				match: /[^\s"#\|&()\d\.\/~]+/,
 				type: moo.keywords({
 					booleanOperator: ['OR', 'AND', 'NOT', 'XOR'],
 					proximityOperator: ['ADJ','NEAR','WITH','SAME'],
@@ -53,6 +54,7 @@ terms -> (
 	| closedClause _
 	| proximityClause _
 	| fieldClause _
+	| fuzzyClause _
 ):+
 
 atomicTerm ->
@@ -88,6 +90,13 @@ fieldClause ->
 
 extension -> atomicTerm %extensionOperator %field
 flag -> %field %fieldOperator atomicTerm
+
+##################
+## Fuzzy Clause ##
+# ‘~’ if used in search text will always have a number following ‘~’
+# and  will be interpreted as ‘FUZZY’ of the preceding string with a
+# similarity of the following number.
+fuzzyClause -> atomicTerm %fuzzyOperator %number
 
 #######################
 ## Boolean Operators ##
