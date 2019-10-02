@@ -69,11 +69,21 @@ describe('USPTO Grammar', () => {
 
 	it('should parse proximity clauses', () => {
 		testValidInput('banana NEAR tree')
+		testValidInput('banana ONEAR tree')
 		testValidInput('banana ADJ tree')
 		testValidInput('banana WITH tree')
 		testValidInput('banana SAME tree')
 		testValidInput('"banana tree" SAME island')
 		testValidInput('(banana SAME tree) AND ("jumping" ADJ "jacks")')
+	})
+
+	it('should parse modified proximity clauses', () => {
+		testValidInput('banana NEAR15 tree')
+		testValidInput('banana ONEAR15 tree')
+		testValidInput('banana ADJ15 tree')
+		testValidInput('banana SAME15 tree')
+		testValidInput('"banana tree" SAME15 island')
+		testValidInput('(banana SAME2 tree) AND ("jumping" ADJ3 "jacks")')
 	})
 
 	it('should parse clauses with numbers', () => {

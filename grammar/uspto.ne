@@ -23,7 +23,7 @@
 				match: /[^\s"#\|&()\d\.\/~\^\$]+/,
 				type: moo.keywords({
 					booleanOperator: ['OR', 'AND', 'NOT', 'XOR'],
-					proximityOperator: ['ADJ','NEAR','WITH','SAME'],
+					proximityOperator: ['ADJ','NEAR', 'ONEAR', 'WITH','SAME'],
 					field: [
 						'ATT', 'AT', 'KD', 'PARN', 'SRC', 'PDID', 'PD', 'PRAN', 'PRN', 'PRCO', 'PRC', 'PRAD',
 						'PRD', 'PRAY', 'PRY', 'RLAN', 'RLPN', 'ART', 'UNIT', 'ASCI', 'ASCO', 'ASCC', 'ASTX', 'ASST',
@@ -140,12 +140,14 @@ booleanOperator ->
 # Proximity operators make it possible to compare distance between terms
 # - ADJ: TermA next to TermB in the order specified in the same sentence.
 # - NEAR: next to Terms in any order in the same sentence.
+# - ONEAR: same as NEAR but order matters
 # - WITH: TermA in the same sentence with TermB.
 # - SAME: TermA in the same paragraph with Terms
 #
 # You can also modify distances for some proximity clauses
 # - ADJn: TermA within n terms of Bin the order specified in the same sentence.
 # - NEARn: TermA within n terms of B in any order in the same sentence.
+# - ONEARn: same as NEARn but order matters
 # - SAMEn: TermA within n paragraphs of TermB
 # where "n" is a number
 proximityOperator ->
