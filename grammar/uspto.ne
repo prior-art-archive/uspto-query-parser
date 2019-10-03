@@ -1,3 +1,7 @@
+# Common postprocessors
+@{% const nuller = () => null %}
+@{% const denest = data => data[0] %}
+
 # We use a lexer to split the string into tokens
 @{%
 	const moo = require('moo')
@@ -43,35 +47,46 @@
 
 @lexer lexer
 
-query -> _ clause comment:?
+query -> _ clause comment:? {% data => ({
+	query: data[1],
+	comment: data[2],
+}) %}
 
 clause ->
-	  terms
-	| (terms conjunction __ clause)
+		terms {% ([terms]) => ({
+			type: "clause",
+			content: terms
+		}) %}
+	| terms conjunction __ clause {% ([left, conjunction, _, right]) => ({
+			type: "conjunction",
+			left,
+			conjunction,
+			right,
+		}) %}
 
 conjunction ->
-	booleanOperator
+	booleanOperator {% denest %}
 
 terms -> (
-	  atomicTerm _
-	| closedClause _
-	| proximityClause _
-	| fieldClause _
-	| fuzzyClause _
-	| boostClause _
-	| lineClause _
-):+
+		atomicTerm _ {% denest %}
+	| closedClause _ {% denest %}
+	| proximityClause _ {% denest %}
+	| fieldClause _ {% denest %}
+	| fuzzyClause _ {% denest %}
+	| boostClause _ {% denest %}
+	| lineClause _ {% denest %}
+):+ {% denest %}
 
 atomicTerm ->
-	  %term
-	| %literal
-	| %number
-	| wildcardClause
+		%term {% denest %}
+	| %literal {% denest %}
+	| %number {% denest %}
+	| wildcardClause {% denest %}
 
 ##############
 ## Comments ##
 # Anything following ‘#’ will be completely removed from the search text.
-comment -> %comment
+comment -> %comment {% denest %}
 
 ####################
 ## Closed Clauses ##
@@ -83,7 +98,7 @@ closedClause -> %leftParen _ clause %rightParen
 ## Proximity Clauses ##
 # clauses that identify pairs of nearby terms
 proximityClause ->
-	  atomicTerm _ proximityOperator __ atomicTerm
+		atomicTerm _ proximityOperator __ atomicTerm
 
 ###################
 ## Field Clauses ##
@@ -91,7 +106,7 @@ proximityClause ->
 # - extension: `*.FIELD`
 # - field flag: `FIELD/*`
 fieldClause ->
-	  extension
+		extension
 	| flag
 
 extension -> atomicTerm %extensionOperator %field
@@ -119,7 +134,7 @@ wildcardClause -> atomicTerm %wildcard
 #################
 ## Line Clause ##
 # Line numbers used in search text will be of the form L followed by the line number
-lineClause -> %lineNumber
+lineClause -> %lineNumber {% denest %}
 
 #######################
 ## Boolean Operators ##
@@ -129,9 +144,9 @@ lineClause -> %lineNumber
 # - NOT
 # - XOR
 booleanOperator ->
-	  %booleanOperator
-	| %orOperator
-	| %andOperator
+		%booleanOperator {% denest %}
+	| %orOperator {% denest %}
+	| %andOperator {% denest %}
 
 #########################
 ## Proximity Operators ##
@@ -151,14 +166,14 @@ booleanOperator ->
 # - SAMEn: TermA within n paragraphs of TermB
 # where "n" is a number
 proximityOperator ->
-	  %proximityOperator
-	| %proximityOperator %number
+		%proximityOperator {% ([operator]) => ({ operator }) %}
+	| %proximityOperator %number {% ([operator, modifier]) => ({ operator, modifier }) %}
 
 ################
 ## Whitespace ##
-_ -> (whitespace:+):?
-__ -> whitespace
+_ -> (whitespace:+):? {% nuller %}
+__ -> whitespace {% nuller %}
 
 whitespace ->
-	  %whitespace
+		%whitespace
 	| %unpairedQuote
