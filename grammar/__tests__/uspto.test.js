@@ -69,11 +69,21 @@ describe('USPTO Grammar', () => {
 
 	it('should parse proximity clauses', () => {
 		testValidInput('banana NEAR tree')
+		testValidInput('banana ONEAR tree')
 		testValidInput('banana ADJ tree')
 		testValidInput('banana WITH tree')
 		testValidInput('banana SAME tree')
 		testValidInput('"banana tree" SAME island')
 		testValidInput('(banana SAME tree) AND ("jumping" ADJ "jacks")')
+	})
+
+	it('should parse modified proximity clauses', () => {
+		testValidInput('banana NEAR15 tree')
+		testValidInput('banana ONEAR15 tree')
+		testValidInput('banana ADJ15 tree')
+		testValidInput('banana SAME15 tree')
+		testValidInput('"banana tree" SAME15 island')
+		testValidInput('(banana SAME2 tree) AND ("jumping" ADJ3 "jacks")')
 	})
 
 	it('should parse clauses with numbers', () => {
@@ -87,5 +97,35 @@ describe('USPTO Grammar', () => {
 		testValidInput('"I cannot find my pants".SRC')
 		testValidInput('PRAN/somebody')
 		testValidInput('ART/"ONCE TOLD ME THE WORLD" # WAS GONNA ROLL ME')
+	})
+
+	it('should allow fuzzy operators', () => {
+		testValidInput('banana~4')
+		testValidInput('"banana soup"~7')
+		testValidInput('"banana soup"~7 AND "pumpkin pie"~3 AND ice cream')
+	})
+
+	it('should allow boost operators', () => {
+		testValidInput('banana^4')
+		testValidInput('"chocolate pie"^100')
+		testValidInput('"chocolate pie"^100 AND walnuts')
+	})
+
+	it('should allow for wildcard operators', () => {
+		testValidInput('banana$')
+		testValidInput('banana$15')
+		testValidInput('"apple dumplings"$10')
+		testValidInput('"apple dumplings"$10 AND parrots')
+		testValidInput('banana$15 ADJ muffins$5')
+		testValidInput('banana$15 ADJ5 muffins$5')
+		testValidInput('banana$15 ADJ5 muffins$5 #why not test comments again')
+		testValidInput('banana$15 15')
+	})
+
+	it('should allow for line number clauses', () => {
+		testValidInput('L15')
+		testValidInput('banana L15')
+		testValidInput('L15 OR "pants"')
+		testValidInput('L15 OR L16')
 	})
 })
