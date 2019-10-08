@@ -61,15 +61,14 @@ clause ->
 			type: "clause",
 			content: terms
 		}) %}
-	| terms conjunction __ clause {% ([left, conjunction, _, right]) => ({
-			type: "conjunction",
-			left,
-			conjunction,
-			right,
-		}) %}
+	| booleanClause
 
-conjunction ->
-	booleanOperator {% denest %}
+booleanClause -> terms booleanOperator __ clause {% ([left, operator, _, right]) => ({
+	type: 'booleanClause',
+	left,
+	operator,
+	right,
+}) %}
 
 terms -> (
 		atomicTerm _ {% denest %}
@@ -153,9 +152,9 @@ lineClause -> %lineNumber {% denest %}
 # - NOT
 # - XOR
 booleanOperator ->
-		%booleanOperator {% denest %}
-	| %orOperator {% denest %}
-	| %andOperator {% denest %}
+		%booleanOperator {% ([operator]) => ({ type: operator.text }) %}
+	| %orOperator {% ([operator]) => ({ type: "OR" }) %}
+	| %andOperator {% ([operator]) => ({ type: "AND" }) %}
 
 #########################
 ## Proximity Operators ##
