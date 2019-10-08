@@ -98,7 +98,12 @@ closedClause -> %leftParen _ clause %rightParen
 ## Proximity Clauses ##
 # clauses that identify pairs of nearby terms
 proximityClause ->
-		atomicTerm _ proximityOperator __ atomicTerm
+	atomicTerm _ proximityOperator __ atomicTerm {% ([left, _1, operator, _2, right ]) => ({
+		type: 'proximityClause',
+		left,
+		operator,
+		right,
+	})%}
 
 ###################
 ## Field Clauses ##
@@ -166,8 +171,14 @@ booleanOperator ->
 # - SAMEn: TermA within n paragraphs of TermB
 # where "n" is a number
 proximityOperator ->
-		%proximityOperator {% ([operator]) => ({ operator }) %}
-	| %proximityOperator %number {% ([operator, modifier]) => ({ operator, modifier }) %}
+		%proximityOperator {% ([operator]) => ({
+			type: operator.text,
+			modifier: null
+		}) %}
+	| %proximityOperator %number {% ([operator, modifier]) => ({
+			type: operator.text,
+			modifier: modifier.text,
+		}) %}
 
 ################
 ## Whitespace ##
