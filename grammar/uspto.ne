@@ -12,8 +12,8 @@
 		whitespace: { match: /\s+/, lineBreaks: true },
 		number: /\d+/,
 		unpairedQuote: '"', // To be treated as whitespace
-		orOperator: '|', // An alternative to "OR"
-		andOperator: '&', // An alternative to "AND"
+		orOperator: '|', // An alternative to 'OR'
+		andOperator: '&', // An alternative to 'AND'
 		fuzzyOperator: '~',
 		boostOperator: '^',
 		wildcard: /\$\d*/,
@@ -58,7 +58,7 @@ query ->
 
 clause ->
 		terms {% ([terms]) => ({
-			type: "clause",
+			type: 'clause',
 			content: terms
 		}) %}
 	| booleanClause
@@ -153,8 +153,8 @@ lineClause -> %lineNumber {% denest %}
 # - XOR
 booleanOperator ->
 		%booleanOperator {% ([operator]) => ({ type: operator.text }) %}
-	| %orOperator {% ([operator]) => ({ type: "OR" }) %}
-	| %andOperator {% ([operator]) => ({ type: "AND" }) %}
+	| %orOperator {% ([operator]) => ({ type: 'OR' }) %}
+	| %andOperator {% ([operator]) => ({ type: 'AND' }) %}
 
 #########################
 ## Proximity Operators ##
@@ -172,7 +172,7 @@ booleanOperator ->
 # - NEARn: TermA within n terms of B in any order in the same sentence.
 # - ONEARn: same as NEARn but order matters
 # - SAMEn: TermA within n paragraphs of TermB
-# where "n" is a number
+# where 'n' is a number
 proximityOperator ->
 		%proximityOperator {% ([operator]) => ({
 			type: operator.text,
