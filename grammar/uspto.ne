@@ -47,10 +47,14 @@
 
 @lexer lexer
 
-query -> _ clause comment:? {% data => ({
-	query: data[1],
-	comment: data[2],
-}) %}
+query ->
+	  _ clause {% data => ({
+			query: data[1],
+		}) %}
+	| _ clause comment {% data => ({
+			query: data[1],
+			comment: data[2].text,
+		}) %}
 
 clause ->
 		terms {% ([terms]) => ({
