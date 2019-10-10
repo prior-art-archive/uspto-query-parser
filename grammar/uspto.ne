@@ -48,7 +48,7 @@
 @lexer lexer
 
 query ->
-	  _ clause {% data => ({
+		_ clause {% data => ({
 			query: data[1],
 		}) %}
 	| _ clause comment {% data => ({
@@ -59,7 +59,7 @@ query ->
 clause ->
 		terms {% ([terms]) => ({
 			type: 'clause',
-			content: terms
+			content: terms,
 		}) %}
 	| booleanClause
 
@@ -146,7 +146,14 @@ boostClause -> atomicTerm %boostOperator %number
 ## Wildcard Clause ##
 # ‘$‘ will be interpreted as any number of characters
 # ‘$n’ will be interpreted as n number of characters
-wildcardClause -> atomicTerm %wildcard
+wildcardClause -> atomicTerm %wildcard {% ([atomicTerm, wildcard]) => {
+	const modifier = '0' + wildcard.text.substring(1);
+	return {
+		type: 'postfix-wildcard',
+		term: atomicTerm,
+		modifier: Number.parseInt(modifier, 10),
+	}
+} %}
 
 #################
 ## Line Clause ##
