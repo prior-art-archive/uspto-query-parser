@@ -81,9 +81,18 @@ terms -> (
 ):+ {% denest %}
 
 atomicTerm ->
-		%term {% denest %}
-	| %literal {% denest %}
-	| %number {% denest %}
+		%term {% ([term]) => ({
+			type: 'text',
+			content: term.text,
+		}) %}
+	| %literal {% ([literal]) => ({
+			type: 'literal',
+			content: literal.text.slice(1,-1),
+		}) %}
+	| %number {% ([number]) => ({
+			type: 'text',
+			content: number.text,
+		}) %}
 	| wildcardClause {% denest %}
 
 ##############
