@@ -153,7 +153,7 @@ boostClause -> atomicTerm %boostOperator %number {% ([atomicTerm, boostOperator,
 wildcardClause -> atomicTerm %wildcard {% ([atomicTerm, wildcard]) => {
 	const modifier = '0' + wildcard.text.substring(1);
 	return {
-		type: 'postfix-wildcard',
+		type: 'postfixWildcard',
 		term: atomicTerm,
 		modifier: Number.parseInt(modifier, 10),
 	}
