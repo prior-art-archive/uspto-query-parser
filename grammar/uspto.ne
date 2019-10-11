@@ -140,7 +140,11 @@ fuzzyClause -> atomicTerm %fuzzyOperator %number
 ## Boost Clause ##
 # ‘^’ if used in search text will always have a number following ‘^’
 # and this number will be used as ‘BOOST’ value for the string preceding ‘^’.
-boostClause -> atomicTerm %boostOperator %number
+boostClause -> atomicTerm %boostOperator %number {% ([atomicTerm, boostOperator, number]) => ({
+	type: 'boostClause',
+	term: atomicTerm,
+	boostValue: number.text,
+}) %}
 
 ##################
 ## Wildcard Clause ##
