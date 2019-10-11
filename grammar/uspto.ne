@@ -134,7 +134,11 @@ flag -> %field %fieldOperator atomicTerm
 # ‘~’ if used in search text will always have a number following ‘~’
 # and  will be interpreted as ‘FUZZY’ of the preceding string with a
 # similarity of the following number.
-fuzzyClause -> atomicTerm %fuzzyOperator %number
+fuzzyClause -> atomicTerm %fuzzyOperator %number {% ([atomicTerm, fuzzyOperator, number]) => ({
+	type: 'fuzzyClause',
+	term: atomicTerm,
+	fuzzyValue: number.text,
+}) %}
 
 ##################
 ## Boost Clause ##
