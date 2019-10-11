@@ -17,7 +17,7 @@
 		fuzzyOperator: '~',
 		boostOperator: '^',
 		wildcard: /\$\d*/,
-		lineNumber: /L\d*/,
+		lineNumber: /L\d+/,
 		leftParen: '(',
 		rightParen: ')',
 		extensionOperator: '.',
@@ -162,7 +162,10 @@ wildcardClause -> atomicTerm %wildcard {% ([atomicTerm, wildcard]) => {
 #################
 ## Line Clause ##
 # Line numbers used in search text will be of the form L followed by the line number
-lineClause -> %lineNumber {% denest %}
+lineClause -> %lineNumber {% ([lineNumber]) => ({
+	type: 'lineClause',
+	lineNumber: lineNumber.text.substring(1),
+}) %}
 
 #######################
 ## Boolean Operators ##
