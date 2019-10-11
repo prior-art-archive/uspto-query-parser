@@ -123,11 +123,20 @@ proximityClause ->
 # - extension: `*.FIELD`
 # - field flag: `FIELD/*`
 fieldClause ->
-		extension
-	| flag
+		extension {% denest %}
+	| flag {% denest %}
 
-extension -> atomicTerm %extensionOperator %field
-flag -> %field %fieldOperator atomicTerm
+extension -> atomicTerm %extensionOperator %field {% ([atomicTerm, extensionOperator, field]) => ({
+	type: 'fieldClause',
+	field: field.text,
+	term: atomicTerm,
+})%}
+
+flag -> %field %fieldOperator atomicTerm {% ([field, fieldOperator, atomicTerm]) => ({
+	type: 'fieldClause',
+	field: field.text,
+	term: atomicTerm,
+})%}
 
 ##################
 ## Fuzzy Clause ##
