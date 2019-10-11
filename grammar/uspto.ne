@@ -1,3 +1,7 @@
+# Common postprocessors
+@{% const nuller = () => null %}
+@{% const denest = data => data[0] %}
+
 # We use a lexer to split the string into tokens
 @{%
 	const moo = require('moo')
@@ -8,8 +12,8 @@
 		whitespace: { match: /\s+/, lineBreaks: true },
 		number: /\d+/,
 		unpairedQuote: '"', // To be treated as whitespace
-		orOperator: '|', // An alternative to "OR"
-		andOperator: '&', // An alternative to "AND"
+		orOperator: '|', // An alternative to 'OR'
+		andOperator: '&', // An alternative to 'AND'
 		fuzzyOperator: '~',
 		boostOperator: '^',
 		wildcard: /\$\d*/,
@@ -43,35 +47,58 @@
 
 @lexer lexer
 
-query -> _ clause comment:?
+query ->
+		_ clause {% data => ({
+			query: data[1],
+		}) %}
+	| _ clause comment {% data => ({
+			query: data[1],
+			comment: data[2].text,
+		}) %}
 
 clause ->
-	  terms
-	| (terms conjunction __ clause)
+		terms {% ([terms]) => ({
+			type: 'clause',
+			content: terms,
+		}) %}
+	| booleanClause
 
-conjunction ->
-	booleanOperator
+booleanClause -> terms booleanOperator __ clause {% ([left, operator, _, right]) => ({
+	type: 'booleanClause',
+	left,
+	operator,
+	right,
+}) %}
 
 terms -> (
-	  atomicTerm _
-	| closedClause _
-	| proximityClause _
-	| fieldClause _
-	| fuzzyClause _
-	| boostClause _
-	| lineClause _
-):+
+		atomicTerm _ {% denest %}
+	| closedClause _ {% denest %}
+	| proximityClause _ {% denest %}
+	| fieldClause _ {% denest %}
+	| fuzzyClause _ {% denest %}
+	| boostClause _ {% denest %}
+	| lineClause _ {% denest %}
+):+ {% denest %}
 
 atomicTerm ->
-	  %term
-	| %literal
-	| %number
-	| wildcardClause
+		%term {% ([term]) => ({
+			type: 'text',
+			content: term.text,
+		}) %}
+	| %literal {% ([literal]) => ({
+			type: 'literal',
+			content: literal.text.slice(1,-1),
+		}) %}
+	| %number {% ([number]) => ({
+			type: 'text',
+			content: number.text,
+		}) %}
+	| wildcardClause {% denest %}
 
 ##############
 ## Comments ##
 # Anything following ‘#’ will be completely removed from the search text.
-comment -> %comment
+comment -> %comment {% denest %}
 
 ####################
 ## Closed Clauses ##
@@ -83,7 +110,12 @@ closedClause -> %leftParen _ clause %rightParen
 ## Proximity Clauses ##
 # clauses that identify pairs of nearby terms
 proximityClause ->
-	  atomicTerm _ proximityOperator __ atomicTerm
+	atomicTerm _ proximityOperator __ atomicTerm {% ([left, _1, operator, _2, right ]) => ({
+		type: 'proximityClause',
+		left,
+		operator,
+		right,
+	})%}
 
 ###################
 ## Field Clauses ##
@@ -91,7 +123,7 @@ proximityClause ->
 # - extension: `*.FIELD`
 # - field flag: `FIELD/*`
 fieldClause ->
-	  extension
+		extension
 	| flag
 
 extension -> atomicTerm %extensionOperator %field
@@ -114,12 +146,19 @@ boostClause -> atomicTerm %boostOperator %number
 ## Wildcard Clause ##
 # ‘$‘ will be interpreted as any number of characters
 # ‘$n’ will be interpreted as n number of characters
-wildcardClause -> atomicTerm %wildcard
+wildcardClause -> atomicTerm %wildcard {% ([atomicTerm, wildcard]) => {
+	const modifier = '0' + wildcard.text.substring(1);
+	return {
+		type: 'postfix-wildcard',
+		term: atomicTerm,
+		modifier: Number.parseInt(modifier, 10),
+	}
+} %}
 
 #################
 ## Line Clause ##
 # Line numbers used in search text will be of the form L followed by the line number
-lineClause -> %lineNumber
+lineClause -> %lineNumber {% denest %}
 
 #######################
 ## Boolean Operators ##
@@ -129,9 +168,9 @@ lineClause -> %lineNumber
 # - NOT
 # - XOR
 booleanOperator ->
-	  %booleanOperator
-	| %orOperator
-	| %andOperator
+		%booleanOperator {% ([operator]) => ({ type: operator.text }) %}
+	| %orOperator {% ([operator]) => ({ type: 'OR' }) %}
+	| %andOperator {% ([operator]) => ({ type: 'AND' }) %}
 
 #########################
 ## Proximity Operators ##
@@ -149,16 +188,22 @@ booleanOperator ->
 # - NEARn: TermA within n terms of B in any order in the same sentence.
 # - ONEARn: same as NEARn but order matters
 # - SAMEn: TermA within n paragraphs of TermB
-# where "n" is a number
+# where 'n' is a number
 proximityOperator ->
-	  %proximityOperator
-	| %proximityOperator %number
+		%proximityOperator {% ([operator]) => ({
+			type: operator.text,
+			modifier: null
+		}) %}
+	| %proximityOperator %number {% ([operator, modifier]) => ({
+			type: operator.text,
+			modifier: modifier.text,
+		}) %}
 
 ################
 ## Whitespace ##
-_ -> (whitespace:+):?
-__ -> whitespace
+_ -> (whitespace:+):? {% nuller %}
+__ -> whitespace {% nuller %}
 
 whitespace ->
-	  %whitespace
+		%whitespace
 	| %unpairedQuote
