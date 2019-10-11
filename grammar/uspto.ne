@@ -48,12 +48,16 @@
 @lexer lexer
 
 query ->
-		_ clause {% data => ({
-			query: data[1],
+		_ clause {% ([_, clause]) => ({
+			type: 'query',
+			content: [clause],
 		}) %}
-	| _ clause comment {% data => ({
-			query: data[1],
-			comment: data[2].text,
+	| _ clause comment {% ([_, clause, comment]) => ({
+			type: 'query',
+			content: [
+				clause,
+				comment,
+			]
 		}) %}
 
 clause ->
@@ -103,7 +107,10 @@ atomicTerm ->
 ##############
 ## Comments ##
 # Anything following ‘#’ will be completely removed from the search text.
-comment -> %comment {% denest %}
+comment -> %comment {% ([comment]) => ({
+	type: 'comment',
+	content: comment.text.substring(1).trim(),
+}) %}
 
 ####################
 ## Closed Clauses ##
