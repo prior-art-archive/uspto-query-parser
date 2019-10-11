@@ -57,10 +57,15 @@ query ->
 		}) %}
 
 clause ->
-		terms {% ([terms]) => ({
-			type: 'clause',
-			content: terms,
-		}) %}
+		terms {% ([terms]) => {
+			if (terms.length === 1) {
+				return terms[0]
+			}
+			return {
+				type: 'clause',
+				content: terms,
+			}
+		} %}
 	| booleanClause
 
 booleanClause -> terms booleanOperator __ clause {% ([left, operator, _, right]) => ({
@@ -104,7 +109,7 @@ comment -> %comment {% denest %}
 ## Closed Clauses ##
 # clauses contained in parentheses
 # TODO: This parser assumes balanaced parentheses
-closedClause -> %leftParen _ clause %rightParen
+closedClause -> %leftParen _ clause %rightParen {% ([lParen, _, clause, rParen]) => clause %}
 
 #######################
 ## Proximity Clauses ##
