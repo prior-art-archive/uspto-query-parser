@@ -70,16 +70,14 @@ clause ->
 				content: terms,
 			}
 		} %}
-	| booleanClause
 
-booleanClause -> terms booleanOperator __ clause {% ([left, operator, _, right]) => ({
-	type: 'booleanClause',
-	left,
-	operator,
-	right,
-}) %}
+terms -> term:+ {% denest %}
 
-terms -> (
+term ->
+		simpleTerm {% denest %}
+	| booleanClause {% denest %}
+
+simpleTerm ->
 		atomicTerm _ {% denest %}
 	| closedClause _ {% denest %}
 	| proximityClause _ {% denest %}
@@ -87,7 +85,13 @@ terms -> (
 	| fuzzyClause _ {% denest %}
 	| boostClause _ {% denest %}
 	| lineClause _ {% denest %}
-):+ {% denest %}
+
+booleanClause -> simpleTerm booleanOperator __ term {% ([left, operator, _, right]) => ({
+	type: 'booleanClause',
+	left,
+	operator,
+	right,
+}) %}
 
 atomicTerm ->
 		%term {% ([term]) => ({
