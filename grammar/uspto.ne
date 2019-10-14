@@ -48,7 +48,7 @@
 @lexer lexer
 
 query ->
-		_ clauses {% ([_, clauses]) => ({
+	  _ clauses {% ([_, clauses]) => ({
 			type: 'query',
 			content: [clauses],
 		}) %}
@@ -60,23 +60,22 @@ query ->
 			]
 		}) %}
 
-clauses ->
-	clause:+ {% ([clauses]) => {
-		if (clauses.length === 1) {
-			return clauses[0]
-		}
-		return {
-			type: 'clauses',
-			content: clauses,
-		}
-	} %}
+clauses -> clause:+ {% ([clauses]) => {
+	if (clauses.length === 1) {
+		return clauses[0]
+	}
+	return {
+		type: 'clauses',
+		content: clauses,
+	}
+} %}
 
 clause ->
-		nonBooleanClause {% denest %}
+	  nonBooleanClause {% denest %}
 	| booleanClause {% denest %}
 
 nonBooleanClause ->
-		atomicTerm _ {% denest %}
+	  atomicTerm _ {% denest %}
 	| closedClause _ {% denest %}
 	| proximityClause _ {% denest %}
 	| fieldClause _ {% denest %}
@@ -92,7 +91,7 @@ booleanClause -> nonBooleanClause booleanOperator __ clause {% ([left, operator,
 }) %}
 
 atomicTerm ->
-		%term {% ([term]) => ({
+	  %term {% ([term]) => ({
 			type: 'text',
 			content: term.text,
 		}) %}
@@ -123,13 +122,12 @@ closedClause -> %leftParen _ clause %rightParen {% ([lParen, _, clause, rParen])
 #######################
 ## Proximity Clauses ##
 # clauses that identify pairs of nearby terms
-proximityClause ->
-	atomicTerm _ proximityOperator __ atomicTerm {% ([left, _1, operator, _2, right ]) => ({
-		type: 'proximityClause',
-		left,
-		operator,
-		right,
-	})%}
+proximityClause -> atomicTerm _ proximityOperator __ atomicTerm {% ([left, _1, operator, _2, right ]) => ({
+	type: 'proximityClause',
+	left,
+	operator,
+	right,
+})%}
 
 ###################
 ## Field Clauses ##
@@ -137,7 +135,7 @@ proximityClause ->
 # - extension: `*.FIELD`
 # - field flag: `FIELD/*`
 fieldClause ->
-		extension {% denest %}
+	  extension {% denest %}
 	| flag {% denest %}
 
 extension -> atomicTerm %extensionOperator %field {% ([atomicTerm, extensionOperator, field]) => ({
@@ -202,7 +200,7 @@ lineClause -> %lineNumber {% ([lineNumber]) => ({
 # - NOT
 # - XOR
 booleanOperator ->
-		%booleanOperator {% ([operator]) => ({ type: operator.text }) %}
+	  %booleanOperator {% ([operator]) => ({ type: operator.text }) %}
 	| %orOperator {% ([operator]) => ({ type: 'OR' }) %}
 	| %andOperator {% ([operator]) => ({ type: 'AND' }) %}
 
@@ -224,7 +222,7 @@ booleanOperator ->
 # - SAMEn: TermA within n paragraphs of TermB
 # where 'n' is a number
 proximityOperator ->
-		%proximityOperator {% ([operator]) => ({
+	  %proximityOperator {% ([operator]) => ({
 			type: operator.text,
 			modifier: null
 		}) %}
@@ -239,5 +237,5 @@ _ -> (whitespace:+):? {% nuller %}
 __ -> whitespace {% nuller %}
 
 whitespace ->
-		%whitespace
+	  %whitespace
 	| %unpairedQuote
