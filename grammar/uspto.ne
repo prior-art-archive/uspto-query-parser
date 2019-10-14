@@ -6,6 +6,11 @@
 @{%
 	const moo = require('moo')
 
+	const caseInsensitiveKeywords = defs => {
+		const keywords = moo.keywords(defs)
+		return value => keywords(value.toUpperCase())
+	}
+
 	const lexer = moo.compile({
 		comment: /#.*/,
 		literal: /".*?"/, // Exact phrases can be included in double quotes
@@ -25,7 +30,7 @@
 		term: [
 			{
 				match: /[^\s"#\|&()\d\.\/~\^\$]+/,
-				type: moo.keywords({
+				type: caseInsensitiveKeywords({
 					booleanOperator: ['OR', 'AND', 'NOT', 'XOR'],
 					proximityOperator: ['ADJ','NEAR', 'ONEAR', 'WITH','SAME'],
 					field: [
