@@ -17,7 +17,7 @@
 		fuzzyOperator: '~',
 		boostOperator: '^',
 		wildcard: /\$\d*/,
-		lineNumber: /L\d*/,
+		lineNumber: /L\d+/,
 		leftParen: '(',
 		rightParen: ')',
 		extensionOperator: '.',
@@ -48,40 +48,50 @@
 @lexer lexer
 
 query ->
-		_ clause {% data => ({
-			query: data[1],
+	  _ clauses {% ([_, clauses]) => ({
+			type: 'query',
+			content: [clauses],
 		}) %}
-	| _ clause comment {% data => ({
-			query: data[1],
-			comment: data[2].text,
+	| _ clauses comment {% ([_, clauses, comment]) => ({
+			type: 'query',
+			content: [
+				clauses,
+				comment,
+			]
 		}) %}
+
+clauses -> clause:+ {% ([clauses]) => {
+	if (clauses.length === 1) {
+		return clauses[0]
+	}
+	return {
+		type: 'clauses',
+		content: clauses,
+	}
+} %}
 
 clause ->
-		terms {% ([terms]) => ({
-			type: 'clause',
-			content: terms,
-		}) %}
-	| booleanClause
+	  nonBooleanClause {% denest %}
+	| booleanClause {% denest %}
 
-booleanClause -> terms booleanOperator __ clause {% ([left, operator, _, right]) => ({
-	type: 'booleanClause',
-	left,
-	operator,
-	right,
-}) %}
-
-terms -> (
-		atomicTerm _ {% denest %}
+nonBooleanClause ->
+	  atomicTerm _ {% denest %}
 	| closedClause _ {% denest %}
 	| proximityClause _ {% denest %}
 	| fieldClause _ {% denest %}
 	| fuzzyClause _ {% denest %}
 	| boostClause _ {% denest %}
 	| lineClause _ {% denest %}
-):+ {% denest %}
+
+booleanClause -> nonBooleanClause booleanOperator __ clause {% ([left, operator, _, right]) => ({
+	type: 'booleanClause',
+	left,
+	operator,
+	right,
+}) %}
 
 atomicTerm ->
-		%term {% ([term]) => ({
+	  %term {% ([term]) => ({
 			type: 'text',
 			content: term.text,
 		}) %}
@@ -98,24 +108,26 @@ atomicTerm ->
 ##############
 ## Comments ##
 # Anything following ‘#’ will be completely removed from the search text.
-comment -> %comment {% denest %}
+comment -> %comment {% ([comment]) => ({
+	type: 'comment',
+	content: comment.text.substring(1).trim(),
+}) %}
 
 ####################
 ## Closed Clauses ##
 # clauses contained in parentheses
 # TODO: This parser assumes balanaced parentheses
-closedClause -> %leftParen _ clause %rightParen
+closedClause -> %leftParen _ clause %rightParen {% ([lParen, _, clause, rParen]) => clause %}
 
 #######################
 ## Proximity Clauses ##
 # clauses that identify pairs of nearby terms
-proximityClause ->
-	atomicTerm _ proximityOperator __ atomicTerm {% ([left, _1, operator, _2, right ]) => ({
-		type: 'proximityClause',
-		left,
-		operator,
-		right,
-	})%}
+proximityClause -> atomicTerm _ proximityOperator __ atomicTerm {% ([left, _1, operator, _2, right ]) => ({
+	type: 'proximityClause',
+	left,
+	operator,
+	right,
+})%}
 
 ###################
 ## Field Clauses ##
@@ -123,24 +135,41 @@ proximityClause ->
 # - extension: `*.FIELD`
 # - field flag: `FIELD/*`
 fieldClause ->
-		extension
-	| flag
+	  extension {% denest %}
+	| flag {% denest %}
 
-extension -> atomicTerm %extensionOperator %field
-flag -> %field %fieldOperator atomicTerm
+extension -> atomicTerm %extensionOperator %field {% ([atomicTerm, extensionOperator, field]) => ({
+	type: 'fieldClause',
+	field: field.text,
+	term: atomicTerm,
+})%}
+
+flag -> %field %fieldOperator atomicTerm {% ([field, fieldOperator, atomicTerm]) => ({
+	type: 'fieldClause',
+	field: field.text,
+	term: atomicTerm,
+})%}
 
 ##################
 ## Fuzzy Clause ##
 # ‘~’ if used in search text will always have a number following ‘~’
 # and  will be interpreted as ‘FUZZY’ of the preceding string with a
 # similarity of the following number.
-fuzzyClause -> atomicTerm %fuzzyOperator %number
+fuzzyClause -> atomicTerm %fuzzyOperator %number {% ([atomicTerm, fuzzyOperator, number]) => ({
+	type: 'fuzzyClause',
+	term: atomicTerm,
+	fuzzyValue: number.text,
+}) %}
 
 ##################
 ## Boost Clause ##
 # ‘^’ if used in search text will always have a number following ‘^’
 # and this number will be used as ‘BOOST’ value for the string preceding ‘^’.
-boostClause -> atomicTerm %boostOperator %number
+boostClause -> atomicTerm %boostOperator %number {% ([atomicTerm, boostOperator, number]) => ({
+	type: 'boostClause',
+	term: atomicTerm,
+	boostValue: number.text,
+}) %}
 
 ##################
 ## Wildcard Clause ##
@@ -149,7 +178,7 @@ boostClause -> atomicTerm %boostOperator %number
 wildcardClause -> atomicTerm %wildcard {% ([atomicTerm, wildcard]) => {
 	const modifier = '0' + wildcard.text.substring(1);
 	return {
-		type: 'postfix-wildcard',
+		type: 'postfixWildcard',
 		term: atomicTerm,
 		modifier: Number.parseInt(modifier, 10),
 	}
@@ -158,7 +187,10 @@ wildcardClause -> atomicTerm %wildcard {% ([atomicTerm, wildcard]) => {
 #################
 ## Line Clause ##
 # Line numbers used in search text will be of the form L followed by the line number
-lineClause -> %lineNumber {% denest %}
+lineClause -> %lineNumber {% ([lineNumber]) => ({
+	type: 'lineClause',
+	lineNumber: lineNumber.text.substring(1),
+}) %}
 
 #######################
 ## Boolean Operators ##
@@ -168,7 +200,7 @@ lineClause -> %lineNumber {% denest %}
 # - NOT
 # - XOR
 booleanOperator ->
-		%booleanOperator {% ([operator]) => ({ type: operator.text }) %}
+	  %booleanOperator {% ([operator]) => ({ type: operator.text }) %}
 	| %orOperator {% ([operator]) => ({ type: 'OR' }) %}
 	| %andOperator {% ([operator]) => ({ type: 'AND' }) %}
 
@@ -190,7 +222,7 @@ booleanOperator ->
 # - SAMEn: TermA within n paragraphs of TermB
 # where 'n' is a number
 proximityOperator ->
-		%proximityOperator {% ([operator]) => ({
+	  %proximityOperator {% ([operator]) => ({
 			type: operator.text,
 			modifier: null
 		}) %}
@@ -205,5 +237,5 @@ _ -> (whitespace:+):? {% nuller %}
 __ -> whitespace {% nuller %}
 
 whitespace ->
-		%whitespace
+	  %whitespace
 	| %unpairedQuote
