@@ -26,8 +26,14 @@
 			{
 				match: /[^\s"#\|&()\d\.\/~\^\$]+/,
 				type: moo.keywords({
-					booleanOperator: ['OR', 'AND', 'NOT', 'XOR'],
-					proximityOperator: ['ADJ','NEAR', 'ONEAR', 'WITH','SAME'],
+					booleanOperator: [
+						'OR', 'AND', 'NOT', 'XOR',
+						'or', 'and', 'not', 'xor',
+					],
+					proximityOperator: [
+						'ADJ','NEAR', 'ONEAR', 'WITH','SAME',
+						'adj','near', 'onear', 'with','same',
+					],
 					field: [
 						'ATT', 'AT', 'KD', 'PARN', 'SRC', 'PDID', 'PD', 'PRAN', 'PRN', 'PRCO', 'PRC', 'PRAD',
 						'PRD', 'PRAY', 'PRY', 'RLAN', 'RLPN', 'ART', 'UNIT', 'ASCI', 'ASCO', 'ASCC', 'ASTX', 'ASST',
@@ -38,6 +44,15 @@
 						'FRGP', 'FRCL', 'OREF', 'UREF', 'URGP', 'URCL', 'READ', 'REFD', 'REAN', 'REPD', 'REPN', 'R47X',
 						'CPC', 'URPN', 'INV', 'AD', 'FD', 'AY', 'FY', 'PPPD', 'ASGP', 'AS', 'INGP', 'IN',
 						'APNR', 'APN', 'APP', 'AP',
+						'att', 'at', 'kd', 'parn', 'src', 'pdid', 'pd', 'pran', 'prn', 'prco', 'prc', 'prad',
+						'prd', 'pray', 'pry', 'rlan', 'rlpn', 'art', 'unit', 'asci', 'asco', 'ascc', 'astx', 'asst',
+						'aszp', 'ccls', 'cor', 'ccor', 'cxr', 'ccxr', 'clas', 'icls', 'ior', 'cior', 'ixr', 'cixr',
+						'ipcc', 'ipcr', 'ipc', 'cicl', 'dd', 'fs', 'bi', 'xa', 'xp', 'gi', 'inci', 'inco',
+						'incc', 'intx', 'inst', 'insa', 'inzp', 'pn', 'did', 'isd', 'py', 'isy', 'ab', 'bsum',
+						'clm', 'detd', 'drwd', 'ti', 'ptan', 'ptad', 'pt3d', 'ptpn', 'ptpd', 'frpn', 'frco', 'fipc',
+						'frgp', 'frcl', 'oref', 'uref', 'urgp', 'urcl', 'read', 'refd', 'rean', 'repd', 'repn', 'r47x',
+						'cpc', 'urpn', 'inv', 'ad', 'fd', 'ay', 'fy', 'pppd', 'asgp', 'as', 'ingp', 'in',
+						'apnr', 'apn', 'app', 'ap',
 					],
 				}),
 			},
