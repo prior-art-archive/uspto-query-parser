@@ -48,36 +48,34 @@
 @lexer lexer
 
 query ->
-		_ clause {% ([_, clause]) => ({
+		_ clauses {% ([_, clauses]) => ({
 			type: 'query',
-			content: [clause],
+			content: [clauses],
 		}) %}
-	| _ clause comment {% ([_, clause, comment]) => ({
+	| _ clauses comment {% ([_, clauses, comment]) => ({
 			type: 'query',
 			content: [
-				clause,
+				clauses,
 				comment,
 			]
 		}) %}
 
+clauses ->
+	clause:+ {% ([clauses]) => {
+		if (clauses.length === 1) {
+			return clauses[0]
+		}
+		return {
+			type: 'clauses',
+			content: clauses,
+		}
+	} %}
+
 clause ->
-		terms {% ([terms]) => {
-			if (terms.length === 1) {
-				return terms[0]
-			}
-			return {
-				type: 'clause',
-				content: terms,
-			}
-		} %}
-
-terms -> term:+ {% denest %}
-
-term ->
-		simpleTerm {% denest %}
+		nonBooleanClause {% denest %}
 	| booleanClause {% denest %}
 
-simpleTerm ->
+nonBooleanClause ->
 		atomicTerm _ {% denest %}
 	| closedClause _ {% denest %}
 	| proximityClause _ {% denest %}
@@ -86,7 +84,7 @@ simpleTerm ->
 	| boostClause _ {% denest %}
 	| lineClause _ {% denest %}
 
-booleanClause -> simpleTerm booleanOperator __ term {% ([left, operator, _, right]) => ({
+booleanClause -> nonBooleanClause booleanOperator __ clause {% ([left, operator, _, right]) => ({
 	type: 'booleanClause',
 	left,
 	operator,
