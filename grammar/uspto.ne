@@ -90,13 +90,27 @@ clause ->
 	| booleanClause {% denest %}
 
 nonBooleanClause ->
-	  atomicTerm _ {% denest %}
-	| closedClause _ {% denest %}
-	| proximityClause _ {% denest %}
-	| fieldClause _ {% denest %}
-	| fuzzyClause _ {% denest %}
-	| boostClause _ {% denest %}
-	| lineClause _ {% denest %}
+	  searchClause _ {% denest %}
+	| filterClause _ {% denest %}
+
+###################
+## Filter Clause ##
+# Filter clauses are generally removed from the search string
+# and are used to search things other than the core text.
+# Certain compound clauses (e.g. proximity) need to ignore filter clauses.
+filterClause ->
+	  fieldClause {% denest %}
+	| lineClause {% denest %}
+
+###################
+## Search Clause ##
+# A search clause is used to identify specific terms in some way.
+searchClause ->
+	  atomicTerm {% denest %}
+	| fuzzyClause {% denest %}
+	| boostClause {% denest %}
+	| closedClause {% denest %}
+	| proximityClause {% denest %}
 
 booleanClause -> nonBooleanClause booleanOperator __ clause {% ([left, operator, _, right]) => ({
 	type: 'booleanClause',
@@ -137,7 +151,7 @@ closedClause -> %leftParen _ clause %rightParen {% ([lParen, _, clause, rParen])
 #######################
 ## Proximity Clauses ##
 # clauses that identify pairs of nearby terms
-proximityClause -> atomicTerm _ proximityOperator __ atomicTerm {% ([left, _1, operator, _2, right ]) => ({
+proximityClause -> searchClause _ proximityOperator __ searchClause {% ([left, _1, operator, _2, right ]) => ({
 	type: 'proximityClause',
 	left,
 	operator,

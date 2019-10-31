@@ -128,4 +128,8 @@ describe('USPTO Grammar', () => {
 		testValidInput('L15 OR "pants"')
 		testValidInput('L15 OR L16')
 	})
+
+	it('should allow proximity clauses to connect compound clauses', () => {
+		testValidInput('(increase$3 or decreas$3 or adjust$3 or chang$3 or adapt$3) near2 (timeout or timer)')
+	})
 })
